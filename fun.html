@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore — Tal Nahari</title>
+  <meta name="description" content="A visual exploration of Tal Nahari's research — wordclouds and paper colour palettes." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
+  <style>
+    /* ---- Section spacing ---- */
+    .viz-section { margin-bottom: 4.5rem; }
+    .viz-section + .viz-section {
+      padding-top: 4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Wordcloud */
+    #wc-wrap {
+      border: 1px solid var(--border);
+      background: var(--white);
+      border-radius: 2px;
+      padding: 1rem;
+    }
+    #wordcloud-canvas {
+      width: 100%;
+      height: 440px;
+      display: block;
+    }
+    #wc-hover {
+      margin-top: 0.85rem;
+      min-height: 3.5rem;
+      padding: 0.85rem 1.1rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: all .25s;
+    }
+    .wc-hover-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+    #wc-hover .wc-word {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+      min-width: 90px;
+    }
+    #wc-hover .wc-tone {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: var(--font-display);
+    }
+    .wc-pitch-track {
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+    #wc-pitch-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #wc-hover.empty .wc-word { color: var(--muted); font-weight: 400; font-size: 0.85rem; font-family: var(--font-body); font-style: normal; }
+    #wc-hover.empty .wc-tone { display: none; }
+    #wc-hover.empty #wc-pitch-fill { width: 0% !important; }
+
+    /* Instrument selector */
+    .wc-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .wc-controls label { font-weight: 500; }
+    #instrument-select {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--text);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 0.3rem 1.8rem 0.3rem 0.65rem;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A746C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.55rem center;
+      transition: border-color .2s;
+    }
+    #instrument-select:hover,
+    #instrument-select:focus { border-color: var(--accent); outline: none; }
+
+    /* Paper palette */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .palette-card {
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--white);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .palette-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.09);
+    }
+    .swatches {
+      display: flex;
+      height: 72px;
+    }
+    .swatch {
+      flex: 1;
+      cursor: default;
+      position: relative;
+      transition: flex .35s ease;
+    }
+    .swatch:hover { flex: 2.2; }
+    .swatch-hex {
+      position: absolute;
+      bottom: 0.35rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity .2s;
+      font-family: monospace;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .swatch:hover .swatch-hex { opacity: 1; }
+    .palette-info {
+      padding: 1rem 1.2rem 1.1rem;
+    }
+    .p-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+    .p-year {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--accent);
+      padding: 0.1rem 0.45rem;
+      border-radius: 1px;
+    }
+    .p-journal-mini {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: var(--font-display);
+    }
+    .p-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.35;
+      margin-bottom: 0.35rem;
+    }
+    .p-theme-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Tal Nahari</a>
+      <ul class="nav-links">
+        <li><a href="index.html">About</a></li>
+        <li><a href="research.html">Research</a></li>
+        <li><a href="fun.html" class="active">Explore</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li>
+          <a href="https://scholar.google.com/citations?user=2rUbAiMAAAAJ&hl=en" target="_blank" rel="noopener" class="scholar-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+            Scholar
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <!-- <p class="eyebrow">Research at a Glance</p> -->
+      <h1>Explore</h1>
+    </div>
+
+    <h2 class="viz-title">
+      What does a body of research look like in different forms? 
+    </h2>
+
+    <!-- WORD CLOUD -->
+    <div class="viz-section">
+      <h2 class="viz-title">The Sounds of My Research</h2>
+      <p> The cloud is built from the titles, abstracts, and key themes of my papers, with each word sized according to how central it is to the body of work.
+         When you hover over a word, the browser plays a short tone that relates to the word frequency: the word's weight is normalised to a value between 0 and 1, then mapped to sound of your choice.  
+         Higher-frequency words sound higher in pitch. The sound itself is generated by one or two sine-wave oscillators. 
+         everything is synthesised live in the browser.</p>
+         <p>Thanks to <a href="https://liorpinsky.bandcamp.com/"> Lior Pinsky</a> and <a href="https://soundcloud.com/amir-bolzman">Amir Bolzman </a> who taught me the art of sound.</p>
+      <div class="wc-controls">
+        <label for="instrument-select">Sound:</label>
+        <select id="instrument-select">
+          <option value="sine" selected>Sine</option>
+          <option value="vibraphone">Vibraphone</option>
+          <option value="bell">Bell</option>
+          <!-- <option value="kalimba">Kalimba</option> -->
+          <option value="triangle">Triangle</option>
+        </select>
+      </div>
+      <div id="wc-wrap">
+        <canvas id="wordcloud-canvas"></canvas>
+      </div>
+      <div id="wc-hover" class="empty">
+        <div class="wc-hover-row">
+          <span class="wc-word">Hover over a word to play its note</span>
+          <span class="wc-tone"></span>
+        </div>
+        <div class="wc-pitch-track"><div id="wc-pitch-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- PAPER PALETTES -->
+    <div class="viz-section">
+      <h2 class="viz-title">Colour Palette</h2>
+      <p class="viz-subtitle">Colour palettes extracted from selected paper's figures using machine vision. Hover each swatch to reveal its hex code.
+        Dedicated to my grandfather, who was a color specialist chemist. 
+      </p>
+      <div class="palette-grid" id="palette-grid"></div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Tal Nahari &nbsp;·&nbsp; <a href="mailto:t.nahari@ucl.ac.uk" style="color:var(--accent)">t.nahari@ucl.ac.uk</a></p>
+  </footer>
+
+  <script>
+  // ============================================================
+  //  DATA
+  // ============================================================
+  const papers = [
+    {
+      year: 2025,
+      title: "Patchy Perception: Rethinking Eye Movements through the Lens of Foraging Theory",
+      authors: "<b>Nahari, T.</b> & El Hady, A.",
+      journal: "bioRxiv preprint",
+      tags: ["Foraging Theory", "Visual Search", "Computational"],
+      theme: "Eye movements as patch foraging: gaze strategies mirror how animals exploit information landscapes",
+      // Extracted: dark crimson from target violin plots + forest olive-greens from Figure 1 foraging illustration
+      palette: ["#750506","#8F1A1C","#818A47","#A9AE65","#5C662C"],
+      paletteNote: "Extracted — crimson from target data plots + forest greens from foraging illustration (Fig. 1)",
+    },
+    {
+      year: 2024,
+      title: "Fixation durations on familiar items are longer due to attenuation of exploration",
+      authors: "<b>Nahari, T.</b>, Eldar, E., & Pertzov, Y.",
+      journal: "Cognitive Research: Principles and Implications",
+      tags: ["Fixation Duration", "Exploration", "Memory"],
+      theme: "Longer fixations on familiar faces reflect reduced urge to explore — not deeper memory retrieval",
+      // Extracted: the vivid teal palette used throughout Figs 1, 3, 4, 5
+      palette: ["#00898A","#26C1BD","#01CBCB","#188381","#71DEDB"],
+      paletteNote: "Extracted from paper figures",
+    },
+    {
+      year: 2025,
+      title: "Decision-making trades off learned and perceived information",
+      authors: "<b>Nahari, T.</b> et al.",
+      journal: "Manuscript",
+      tags: ["Decision Making", "Perception", "Learning"],
+      theme: "How the mind weighs learned knowledge against moment-to-moment perception",
+      // Thematic palette: perceptual blue–green for incoming information, warm amber for learned priors
+      palette: ["#3B6E8F","#5AACA4","#F2B45A","#E8784A","#A8C8D0"],
+      paletteNote: "Curated — manuscript figures in vector format",
+    },
+    {
+      year: 2021,
+      title: "Keep an eye on your belongings: Gaze dynamics toward familiar and unfamiliar objects",
+      authors: "Lancry-Dayan, O. C.*, <b>Nahari, T.</b>*, Ben-Shakhar, G., & Pertzov, Y.",
+      journal: "J. Experimental Psychology: Learning, Memory, and Cognition",
+      tags: ["Eye Tracking", "Familiarity", "Memory"],
+      theme: "Two-phase gaze priority: personal ownership first, encoding demands second",
+      // Extracted from Figure 2: pink (Exp1), orange (Exp2), blue (Exp3)
+      palette: ["#E797C0","#F1BB5F","#D1769F","#FAEABE","#F3CBE3"],
+      paletteNote: "Extracted from paper figures",
+    },
+    {
+      year: 2019,
+      title: "Detecting concealed familiarity using eye movements: The role of task demands",
+      authors: "<b>Nahari, T.</b>*, Lancry-Dayan, O.*, Ben-Shakhar, G., & Pertzov, Y.",
+      journal: "Cognitive Research: Principles and Implications",
+      tags: ["Eye Movements", "CIT", "Task Demands"],
+      theme: "Task demands flip gaze preference: memory task vs. visual detection",
+      // Extracted from Figure 2+3: blue (familiar), yellow (unfamiliar), pale blue shading
+      palette: ["#4268AE","#EED14B","#CFD9F8","#FCF7C6","#E4DF9E"],
+      paletteNote: "Extracted from paper figures",
+    },
+    {
+      year: 2018,
+      title: "Do you know him? Gaze dynamics toward familiar faces on a Concealed Information Test",
+      authors: "Lancry-Dayan, O. C.*, <b>Nahari, T.</b>*, Ben-Shakhar, G., & Pertzov, Y.",
+      journal: "J. Applied Research in Memory and Cognition",
+      tags: ["Gaze", "Face Recognition", "CIT"],
+      theme: "Familiar faces: initial attraction, then systematic avoidance",
+      // Extracted from Figure 2+4: lavender-purple (familiar), warm peach-orange (unfamiliar)
+      palette: ["#B3A2C7","#E5C19A","#F9C092","#E1CAF0","#F5E2C4"],
+      paletteNote: "Extracted from paper figures",
+    },
+
+    {
+      year: 2017,
+      title: "Memory detection: The effects of emotional stimuli",
+      authors: "Klein Selle, N., Verschuere, B., Kindt, M., Meijer, E., <b>Nahari, T.</b>, & Ben-Shakhar, G.",
+      journal: "Biological Psychology",
+      tags: ["Memory", "Emotion", "Psychophysiology"],
+      theme: "Affective intensity modulates physiological memory signatures",
+      // Psychophysiology paper — deep navy/red of arousal traces, EEG-style blues
+      palette: ["#2A3B7A","#5068B8","#A0B0D8","#D4485A","#F0A0AA"],
+      paletteNote: "Curated — physiological/EEG colour conventions",
+    },
+    {
+      year: 2017,
+      title: "The External Validity of the Concealed Information Test: The Effect of Choosing to Commit a Mock Crime",
+      authors: "<b>Nahari, T.</b>, Breska, A., Elber, L., Klein Selle, N., & Ben-Shakhar, G.",
+      journal: "Applied Cognitive Psychology",
+      tags: ["CIT", "External Validity", "Mock Crime"],
+      theme: "Agency and volition in crime-related memory encoding",
+      // Behavioural study — warm terracotta/ochre palette, earthy and applied
+      palette: ["#B35C3A","#C8884A","#D4A878","#E8C8A8","#8A3A1E"],
+      paletteNote: "Curated — thematic palette",
+    },
+  ];
+
+  // ============================================================
+  //  WORD CLOUD
+  // ============================================================
+  const wordList = [
+    ['Gaze',85],['Familiarity',80],['Eye movements',75],['Memory',72],
+    ['Concealed',68],['Detection',65],['Cognitive',60],['Emotion',58],
+    ['Dynamics',52],['Attention',55],['Deception',50],['Preference',48],
+    ['Reward',50],['Objects',45],['Faces',45],['Task demands',42],
+    ['External validity',40],['Curiosity',48],['Aversion',40],
+    ['Arousal',38],['Learning',42],['Recognition',40],['Saccades',34],
+    ['Fixation',46],['Pupil',32],['Psychophysiology',35],['Bayesian',32],
+    ['Development',30],['Modelling',32],['Mock crime',28],
+    ['Knowledge',30],['Mental activity',35],['Uncertainty',34],
+    ['Decision',40],['Information',38],['Familiar objects',30],
+    ['Computational',32],['Psychiatry',25],['Agency',25],['Volition',22],
+    // New: Attenuation (2024)
+    ['Exploration',52],['Fixation duration',50],['Attenuation',46],
+    ['Second fixation',38],['Encoding',42],['Retrieval',42],
+    ['Active sensing',38],['Single display',30],['Multiple display',30],
+    // New: Patchy Perception (2025)
+    ['Foraging',55],['Patch foraging',48],['Visual search',52],
+    ['Residence time',40],['Marginal value',36],['Spatial',38],
+    ['Temporal dynamics',38],['Behavioral ecology',36],['Patches',42],
+    ['Information foraging',35],['Target',35],['Exploitation',32],
+  ];
+
+  const wcColors = ['#B85C3A','#3A6B80','#537A5A','#9B4728','#2A5A6E','#C9A96E','#3D4F8A'];
+
+  function initWordCloud() {
+    const canvas = document.getElementById('wordcloud-canvas');
+    if (!canvas || !window.WordCloud) return;
+    canvas.width  = canvas.offsetWidth  || 860;
+    canvas.height = canvas.offsetHeight || 440;
+
+    WordCloud(canvas, {
+      list: wordList,
+      gridSize: Math.round(16 * canvas.width / 1024),
+      weightFactor: (size) => Math.max(10, size * (canvas.width / 700)),
+      fontFamily: 'Cormorant Garamond, Georgia, serif',
+      color: () => wcColors[Math.floor(Math.random() * wcColors.length)],
+      rotateRatio: 0.25,
+      rotationSteps: 2,
+      backgroundColor: '#FDFCFA',
+      drawOutOfBound: false,
+      shrinkToFit: true,
+      hover: (item) => {
+        const el    = document.getElementById('wc-hover');
+        const word  = el.querySelector('.wc-word');
+        const tone  = el.querySelector('.wc-tone');
+        const fill  = document.getElementById('wc-pitch-fill');
+        if (item) {
+          const weight   = wordList.find(w => w[0] === item[0])?.[1] ?? 50;
+          const { freq, name, norm } = weightToNote(weight);
+          playTone(freq);
+          word.textContent = item[0];
+          tone.textContent = `♩ ${name} · ${Math.round(freq)} Hz`;
+          fill.style.width = `${Math.round(norm * 100)}%`;
+          el.classList.remove('empty');
+        } else {
+          word.textContent = 'Hover over a word to play its note';
+          tone.textContent = '';
+          fill.style.width = '0%';
+          el.classList.add('empty');
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  //  AUDIO ENGINE
+  // ============================================================
+  // C major pentatonic across 2½ octaves — naturally pleasant,
+  // no dissonant intervals, maps well to a continuous weight range.
+  const SCALE = [
+    { name: 'C4',  freq: 261.63 },
+    { name: 'D4',  freq: 293.66 },
+    { name: 'E4',  freq: 329.63 },
+    { name: 'G4',  freq: 392.00 },
+    { name: 'A4',  freq: 440.00 },
+    { name: 'C5',  freq: 523.25 },
+    { name: 'D5',  freq: 587.33 },
+    { name: 'E5',  freq: 659.25 },
+    { name: 'G5',  freq: 784.00 },
+    { name: 'A5',  freq: 880.00 },
+    { name: 'C6',  freq: 1046.50 },
+  ];
+
+  const W_MIN = 22, W_MAX = 85;
+
+  function weightToNote(w) {
+    const norm = (w - W_MIN) / (W_MAX - W_MIN);           // 0 → 1
+    const idx  = Math.round(norm * (SCALE.length - 1));   // snap to scale degree
+    const note = SCALE[Math.max(0, Math.min(idx, SCALE.length - 1))];
+    return { ...note, norm };
+  }
+
+  let audioCtx = null;
+
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  // Dispatcher — reads the dropdown and routes to the right synth
+  function playTone(freq) {
+    const choice = document.getElementById('instrument-select')?.value || 'vibraphone';
+    switch (choice) {
+      case 'vibraphone': playVibraphone(freq); break;
+      case 'bell':       playBell(freq);       break;
+      case 'kalimba':    playKalimba(freq);    break;
+      case 'sine':       playSine(freq);       break;
+      case 'triangle':   playTriangle(freq);   break;
+      default:           playVibraphone(freq);
+    }
+  }
+
+  // Shared helper — plays an array of [freq multiplier, peak gain]
+  // sine partials with a shared attack/decay envelope
+  function playPartials(freq, partials, attack, decay) {
+    const ctx = getCtx();
+    const now = ctx.currentTime;
+    partials.forEach(([mult, vol]) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * mult, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(vol,    now + attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+      osc.start(now);
+      osc.stop(now + decay);
+    });
+  }
+
+  // Vibraphone — fundamental + 4th harmonic (2 octaves up, very soft)
+  // Fast 12ms attack, 1.1s decay. Classic mallet percussion timbre.
+  function playVibraphone(freq) {
+    playPartials(freq, [[1, 0.28], [4, 0.06]], 0.012, 1.1);
+  }
+
+  // Bell — inharmonic partials drawn from acoustic bell analysis.
+  // Long 3s decay so notes can gently overlap as the mouse moves.
+  function playBell(freq) {
+    playPartials(freq, [[1, 0.25], [2.756, 0.10], [5.404, 0.04]], 0.008, 3.0);
+  }
+
+  // Kalimba — fundamental + 2nd harmonic (one octave up).
+  // Warmer and more intimate than the vibraphone.
+  function playKalimba(freq) {
+    playPartials(freq, [[1, 0.25], [2, 0.08]], 0.015, 1.5);
+  }
+
+  // Sine — single pure tone with a slow 150ms attack.
+  // Meditative; multiple notes can overlap softly as you drift.
+  function playSine(freq) {
+    playPartials(freq, [[1, 0.22]], 0.15, 2.2);
+  }
+
+  // Triangle — built-in triangle wave (odd harmonics: 3rd, 5th…).
+  // Slightly reedy and flute-like, still gentle on laptop speakers.
+  function playTriangle(freq) {
+    const ctx  = getCtx();
+    const now  = ctx.currentTime;
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.22,   now + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.3);
+    osc.start(now);
+    osc.stop(now + 1.3);
+  }
+
+  // init on page load (wordcloud tab is active)
+  window.addEventListener('load', () => {
+    setTimeout(initWordCloud, 100);
+  });
+  window.addEventListener('resize', initWordCloud);
+
+  // ============================================================
+  //  PAPER PALETTE
+  // ============================================================
+  function buildPalette() {
+    const grid = document.getElementById('palette-grid');
+    papers.forEach(p => {
+      const swatchHtml = p.palette.map(col =>
+        `<div class="swatch" style="background:${col}">
+           <span class="swatch-hex">${col}</span>
+         </div>`
+      ).join('');
+
+      const tagHtml = p.tags.map(t =>
+        `<span class="pub-tag">${t}</span>`
+      ).join('');
+
+      grid.innerHTML += `
+        <div class="palette-card">
+          <div class="swatches">${swatchHtml}</div>
+          <div class="palette-info">
+            <div class="p-meta">
+              <span class="p-year">${p.year}</span>
+              <span class="p-journal-mini">${p.journal.split(',')[0]}</span>
+            </div>
+            <p class="p-title">${p.title}</p>
+            <p class="p-theme-label" style="margin-bottom:0.5rem">${p.theme}</p>
+            <div>${tagHtml}</div>
+            ${p.paletteNote ? `<p style="font-size:0.68rem;color:var(--muted);margin-top:0.5rem;font-style:italic;">🎨 ${p.paletteNote}</p>` : ''}
+          </div>
+        </div>
+      `;
+    });
+  }
+  buildPalette();
+
+  </script>
+</body>
+</html>
