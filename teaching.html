@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teaching — Tal Nahari</title>
+  <meta name="description" content="Teaching, tutoring, and mentoring by Tal Nahari — UCL and Hebrew University of Jerusalem." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    .teaching-intro {
+      font-family: var(--font-display);
+      font-size: clamp(1.05rem, 2.5vw, 1.15rem);
+      line-height: 1.9;
+      color: var(--muted);
+      font-style: italic;
+      max-width: 62ch;
+      margin-bottom: 3.5rem;
+    }
+
+    /* Institution group heading */
+    .inst-heading {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.25rem;
+      margin-top: 3rem;
+    }
+    .inst-heading:first-of-type { margin-top: 0; }
+    .inst-name {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+    .inst-location {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      padding-top: 2px;
+    }
+    .inst-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Teaching entry list */
+    .teaching-list { display: grid; gap: 0; margin-bottom: 1rem; }
+
+    .teaching-entry {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1.25rem 1.5rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+
+    .t-year {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-transform: uppercase;
+      padding-top: 3px;
+      line-height: 1.5;
+    }
+
+    .t-body {}
+    .t-role {
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 500;
+      line-height: 1.35;
+      margin-bottom: 0.2rem;
+    }
+    .t-course {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--teal);
+      margin-bottom: 0.25rem;
+    }
+    .t-desc {
+      font-size: 0.87rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .t-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Highlight card for special/initiated entries */
+    .teaching-entry.featured {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1.25rem 1.35rem;
+      margin: 0.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .teaching-entry.featured::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--sage);
+    }
+    .teaching-entry.featured + .teaching-entry {
+      border-top: none;
+    }
+
+    @media (max-width: 560px) {
+      .teaching-entry {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Tal Nahari</a>
+      <ul class="nav-links">
+        <li><a href="index.html">About</a></li>
+        <li><a href="research.html">Research</a></li>
+        <li><a href="teaching.html" class="active">Teaching</a></li>
+        <li><a href="fun.html">Explore</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li>
+          <a href="https://scholar.google.com/citations?user=2rUbAiMAAAAJ&hl=en" target="_blank" rel="noopener" class="scholar-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+            Scholar
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <div class="page-header">
+      <h1>Teaching</h1>
+    </div>
+
+    <p class="teaching-intro">
+      I love teaching and mentoring. I have taught statistics, research methods, and data science at undergraduate and postgraduate level,
+      supervised students, and initiated courses that cross disciplinary lines.
+    </p>
+
+
+    <!-- ═══════════════════════════════
+         UCL  (current)
+         ═══════════════════════════════ -->
+    <div class="inst-heading">
+      <h2 class="inst-name">University College London</h2>
+      <div class="inst-rule"></div>
+    </div>
+
+    <div class="teaching-list">
+
+      <div class="teaching-entry">
+        <div class="t-year">2025</div>
+        <div class="t-body">
+          <p class="t-role">Senior Tutor — Data Science</p>
+          <p class="t-course">MSc Experimental Psychology</p>
+          <div class="t-tags">
+            <span class="pub-tag">Data Science</span>
+            <span class="pub-tag">Postgraduate</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2024 –<br>2025</div>
+        <div class="t-body">
+          <p class="t-role">Seminar Leader — Experimental Psychology</p>
+          <p class="t-course">Year 1 Undergraduate Seminar</p>
+          <div class="t-tags">
+            <span class="pub-tag">Undergraduate</span>
+            <span class="pub-tag">Seminar</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2024,2026</div>
+        <div class="t-body">
+          <p class="t-role">Lead Teaching Assistant</p>
+          <p class="t-course">UCL–PKU Joint Summer School in Experimental, Methodological &amp; Computational Psychology</p>
+          <p class="t-desc">International summer school jointly run with Peking University, covering experimental design, computational modelling, and research methods.</p>
+          <div class="t-tags">
+            <span class="pub-tag">Summer School</span>
+            <span class="pub-tag">Computational</span>
+            <span class="pub-tag">International</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /UCL list -->
+
+
+    <!-- ═══════════════════════════════
+         Hebrew University of Jerusalem
+         ═══════════════════════════════ -->
+    <div class="inst-heading">
+      <h2 class="inst-name">Hebrew University of Jerusalem</h2>
+      <div class="inst-rule"></div>
+    </div>
+
+    <div class="teaching-list">
+
+      <!-- Fine Lines — featured as it was self-initiated -->
+      <div class="teaching-entry">
+        <div class="t-year">2021 –<br>2022</div>
+        <div class="t-body">
+          <p class="t-role">Founder &amp; Instructor — <em>Fine Lines</em></p>
+          <p class="t-course">Interdisciplinary Seminar in Cognitive Research and Art</p>
+          <p class="t-desc">
+            Designed and lead an original cross-institutional seminar exploring the intersections of cognitive
+            science and artistic practice. I worked to ensure it was included in the
+            Academy City project, an initiative open to students from all academic institutions in Jerusalem. 
+          </p>
+          <div class="t-tags">
+            <span class="pub-tag">Self-initiated</span>
+            <span class="pub-tag">Art &amp; Cognition</span>
+            <span class="pub-tag">Interdisciplinary</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2020 –<br>2021</div>
+        <div class="t-body">
+          <p class="t-role">BA Consultant for the Cognitive and Brain Sciences Department</p>
+          <!-- <p class="t-course">Cognitive and Brain Sciences Department</p> -->
+          <p class="t-desc">First PhD student to take on a formal consultancy role for undergraduate students in the department.</p>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2018 –<br>2020</div>
+        <div class="t-body">
+          <p class="t-role"><strong>Instructor</strong> - Research Methods in Cognitive Science</p>
+          <div class="t-tags">
+            <span class="pub-tag">Undergraduate</span>
+            <span class="pub-tag">Research Methods</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2018</div>
+        <div class="t-body">
+          <p class="t-role"><strong>Tutor</strong> - Advanced Statistics &amp; Computational Modelling</p>
+          <p class="t-course">MA &amp; PhD course, Department of Psychology</p>
+          <div class="t-tags">
+            <span class="pub-tag">Postgraduate</span>
+            <span class="pub-tag">Statistics</span>
+            <span class="pub-tag">Computational</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2015 –<br>2018</div>
+        <div class="t-body">
+          <p class="t-role">Head Coordinator, Cognitive Sciences Department</p>
+          <p class="t-desc">Responsible for all departmental events and communication with current students and applicants.</p>
+        </div>
+      </div>
+
+
+      <div class="teaching-entry">
+        <div class="t-year">2017</div>
+        <div class="t-body">
+          <p class="t-role">Tutor — Research Methods for Cognitive Science</p>
+          <div class="t-tags">
+            <span class="pub-tag">Undergraduate</span>
+            <span class="pub-tag">Research Methods</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2016</div>
+        <div class="t-body">
+          <p class="t-role">Teaching Assistant — Cognitive Processes for Cognitive Science</p>
+          <div class="t-tags">
+            <span class="pub-tag">Undergraduate</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2015 –<br>2017</div>
+        <div class="t-body">
+          <p class="t-role">Lab Manager</p>
+          <p class="t-course">Prof. Gershon Ben-Shakhar's Lab</p>
+        </div>
+      </div>
+
+    </div><!-- /Hebrew U list -->
+
+
+    <!-- ═══════════════════════════════
+         MENTORING
+         ═══════════════════════════════ -->
+    <div class="inst-heading" style="margin-top:3rem;">
+      <h2 class="inst-name">Mentoring</h2>
+      <div class="inst-rule"></div>
+    </div>
+
+    <div class="teaching-list">
+
+      <div class="teaching-entry">
+        <div class="t-year">2024 –<br>present</div>
+        <div class="t-body">
+          <p class="t-role">Mentoring — BSc, MSc students</p>
+          <p class="t-course">UCL, London</p>
+        </div>
+      </div>
+
+      <div class="teaching-entry">
+        <div class="t-year">2020 –<br>2023</div>
+        <div class="t-body">
+          <p class="t-role">Mentoring — BSc, MSc students</p>
+          <p class="t-course">HUJI</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Tal Nahari &mdash; Affective Brain Lab, UCL &mdash; London &nbsp;·&nbsp; <a href="mailto:t.nahari@ucl.ac.uk" style="color:var(--accent)">t.nahari@ucl.ac.uk</a></p>
+  </footer>
+
+</body>
+</html>
